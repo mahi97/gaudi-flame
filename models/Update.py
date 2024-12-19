@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Python version: 3.6
+from typing import List, Any
 
 import torch
 from torch import nn, autograd
@@ -27,6 +28,11 @@ class DatasetSplit(Dataset):
 
 
 class LocalUpdate(object):
+    args: Any
+    loss_func: nn.Module
+    selected_clients: List[int]
+    ldr_train: DataLoader
+
     def __init__(self, args, dataset=None, idxs=None):
         self.args = args
         self.loss_func = nn.CrossEntropyLoss()
@@ -35,6 +41,8 @@ class LocalUpdate(object):
 
     def train(self, net):
         net.train()
+        # if args.gaudi and args.eager:
+        #     net = torch.compile(net, backend="hpu_backend")
         # train and update
         optimizer = torch.optim.SGD(net.parameters(), lr=self.args.lr, momentum=self.args.momentum)
 
