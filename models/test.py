@@ -6,6 +6,10 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+from utils.options import args
+
+if args.gaudi:
+    import habana_frameworks.torch.core as htcore
 
 
 def test_img(net_g, datatest, args):
