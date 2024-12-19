@@ -17,11 +17,14 @@ from models.Nets import MLP, CNNMnist, CNNCifar
 from models.Fed import FedAvg
 from models.test import test_img
 
+if args.gaudi:
+    import habana_frameworks.torch.core as htcore
+    device = torch.device("hpu")
+else:
+    device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu != -1 else "cpu")
+
 
 if __name__ == '__main__':
-    # parse args
-
-    args.device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
 
     # load dataset and split users
     if args.dataset == 'mnist':
@@ -55,11 +58,11 @@ if __name__ == '__main__':
         for x in img_size:
             len_in *= x
         net_glob = MLP(dim_in=len_in, dim_hidden=200, dim_out=args.num_classes).to(args.device)
-    else:
-        exit('Error: unrecognized model')
+
     print(net_glob)
     net_glob.train()
-
+    if args.gaudi and args.eager:
+        net_glob = torch.compile(net_glob, backend="hpu_backend")
     # copy weights
     w_glob = net_glob.state_dict()
 
