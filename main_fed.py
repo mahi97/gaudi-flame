@@ -67,8 +67,8 @@ if __name__ == '__main__':
 
     print(net_glob)
     net_glob.train()
-    # if args.gaudi and args.eager:
-    #     net_glob = torch.compile(net_glob, backend="hpu_backend")
+    if args.gaudi and args.eager:
+        net_glob = torch.compile(net_glob, backend="hpu_backend")
     # copy weights
     w_glob = net_glob.state_dict()
 
