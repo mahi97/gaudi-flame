@@ -52,7 +52,9 @@ class LocalUpdate(object):
         epoch_loss = []
         for iter in range(self.args.local_ep):
             batch_loss = []
+            print('2')
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
+                print('3')
                 images, labels = images.to(self.args.device), labels.to(self.args.device)
                 optimizer.zero_grad()
                 log_probs = net(images)
