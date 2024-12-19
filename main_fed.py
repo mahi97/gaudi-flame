@@ -23,6 +23,7 @@ if args.gaudi:
 else:
     args.device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu != -1 else "cpu")
 
+print(args.device)
 
 if __name__ == '__main__':
 
