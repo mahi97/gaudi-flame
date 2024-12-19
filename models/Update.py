@@ -4,11 +4,8 @@
 from typing import List, Any
 
 import torch
-from torch import nn, autograd
+from torch import nn
 from torch.utils.data import DataLoader, Dataset
-import numpy as np
-import random
-from sklearn import metrics
 from utils.options import args
 
 if args.gaudi:
@@ -28,10 +25,10 @@ class DatasetSplit(Dataset):
 
 
 class LocalUpdate(object):
-    args: Any
-    loss_func: nn.Module
-    selected_clients: List[int]
-    ldr_train: DataLoader
+    args: torch.jit.Attribute[Any]
+    loss_func: torch.jit.Attribute[nn.Module]
+    selected_clients: torch.jit.Attribute[List[int]]
+    ldr_train: torch.jit.Attribute[DataLoader]
 
     def __init__(self, args, dataset=None, idxs=None):
         self.args = args
@@ -43,19 +40,15 @@ class LocalUpdate(object):
         optimizer = torch.optim.SGD(net.parameters(), lr=self.args.lr, momentum=self.args.momentum)
         net.train()
         if args.gaudi and args.eager:
-            print('0')
             net = torch.compile(net, backend="hpu_backend")
-            print('1')
         # train and update
 
 
         epoch_loss = []
         for iter in range(self.args.local_ep):
             batch_loss = []
-            print('2')
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
                 images, labels = images.to(self.args.device), labels.to(self.args.device)
-                print('3')
                 optimizer.zero_grad()
                 log_probs = net(images)
                 loss = self.loss_func(log_probs, labels)
