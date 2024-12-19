@@ -2,7 +2,7 @@
 
 # Check if sufficient arguments are provided
 if [ $# -lt 2 ]; then
-  echo "Usage: $0 <image_name> <dockerfile_path> [source_folder] [dataset_folder] [script_to_run]"
+  echo "Usage: $0 <image_name> <dockerfile_path> [source_folder] [dataset_folder] [script_to_run] [script_args...]"
   exit 1
 fi
 
@@ -14,6 +14,9 @@ DOCKERFILE_PATH="$2"
 SRC_FOLDER="${3:-}"
 DATASET_FOLDER="${4:-}"
 SCRIPT_NAME="${5:-}"
+
+# Collect additional arguments for the script
+SCRIPT_ARGS="${@:6}"
 
 # Check if the Dockerfile exists at the specified path
 if [ ! -f "$DOCKERFILE_PATH" ]; then
@@ -41,5 +44,5 @@ if [ -z "$SCRIPT_NAME" ]; then
 fi
 
 # Run the Docker container using the newly built image
-echo "Running the Docker container with the image '$IMAGE_NAME'..."
-./docker_run.sh "$IMAGE_NAME" "$SRC_FOLDER" "$DATASET_FOLDER" "$SCRIPT_NAME"
+echo "Running the Docker container with the image '$IMAGE_NAME' and script '$SCRIPT_NAME' with arguments '$SCRIPT_ARGS'..."
+./docker_run.sh "$IMAGE_NAME" "$SRC_FOLDER" "$DATASET_FOLDER" "$SCRIPT_NAME" $SCRIPT_ARGS
