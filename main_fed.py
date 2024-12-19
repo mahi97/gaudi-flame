@@ -19,9 +19,9 @@ from models.test import test_img
 
 if args.gaudi:
     import habana_frameworks.torch.core as htcore
-    device = torch.device("hpu")
+    args.device = torch.device("hpu")
 else:
-    device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu != -1 else "cpu")
+    args.device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu != -1 else "cpu")
 
 
 if __name__ == '__main__':
