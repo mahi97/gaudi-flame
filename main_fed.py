@@ -11,7 +11,7 @@ from torchvision import datasets, transforms
 import torch
 
 from utils.sampling import mnist_iid, mnist_noniid, cifar_iid
-from utils.options import args_parser
+from utils.options import args
 from models.Update import LocalUpdate
 from models.Nets import MLP, CNNMnist, CNNCifar
 from models.Fed import FedAvg
@@ -20,7 +20,7 @@ from models.test import test_img
 
 if __name__ == '__main__':
     # parse args
-    args = args_parser()
+
     args.device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
 
     # load dataset and split users
