@@ -41,8 +41,8 @@ class LocalUpdate(object):
 
     def train(self, net):
         net.train()
-        # if args.gaudi and args.eager:
-        #     net = torch.compile(net, backend="hpu_backend")
+        if args.gaudi and args.eager:
+            net = torch.compile(net, backend="hpu_backend")
         # train and update
         optimizer = torch.optim.SGD(net.parameters(), lr=self.args.lr, momentum=self.args.momentum)
 
