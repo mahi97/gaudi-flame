@@ -40,11 +40,12 @@ class LocalUpdate(object):
         self.ldr_train = DataLoader(DatasetSplit(dataset, idxs), batch_size=self.args.local_bs, shuffle=True)
 
     def train(self, net):
+        optimizer = torch.optim.SGD(net.parameters(), lr=self.args.lr, momentum=self.args.momentum)
         net.train()
         if args.gaudi and args.eager:
             net = torch.compile(net, backend="hpu_backend")
         # train and update
-        optimizer = torch.optim.SGD(net.parameters(), lr=self.args.lr, momentum=self.args.momentum)
+
 
         epoch_loss = []
         for iter in range(self.args.local_ep):
