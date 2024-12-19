@@ -52,15 +52,22 @@ class LocalUpdate(object):
             batch_loss = []
             for batch_idx, (images, labels) in enumerate(self.ldr_train):
                 images, labels = images.to(self.args.device), labels.to(self.args.device)
+                print('-1')
                 optimizer.zero_grad()
+                print('0')
                 log_probs = net(images)
+                print('1')
                 loss = self.loss_func(log_probs, labels)
                 loss.backward()
+                print('2')
+
                 if self.args.gaudi and not self.args.eager:
                     htcore.mark_step()
                 optimizer.step()
                 if self.args.gaudi and not self.args.eager:
                     htcore.mark_step()
+                print('3')
+
                 if self.args.verbose and batch_idx % 10 == 0:
                     print('Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                         iter, batch_idx * len(images), len(self.ldr_train.dataset),
