@@ -8,7 +8,10 @@ from torch.utils.data import DataLoader, Dataset
 import numpy as np
 import random
 from sklearn import metrics
+from utils.options import args
 
+if args.gaudi:
+    import habana_frameworks.torch.core as htcore
 
 class DatasetSplit(Dataset):
     def __init__(self, dataset, idxs):
@@ -44,7 +47,11 @@ class LocalUpdate(object):
                 log_probs = net(images)
                 loss = self.loss_func(log_probs, labels)
                 loss.backward()
+                if self.args.gaudi and not self.args.eager:
+                    htcore.mark_step()
                 optimizer.step()
+                if self.args.gaudi and not self.args.eager:
+                    htcore.mark_step()
                 if self.args.verbose and batch_idx % 10 == 0:
                     print('Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                         iter, batch_idx * len(images), len(self.ldr_train.dataset),
