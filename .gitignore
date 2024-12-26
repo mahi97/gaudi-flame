@@ -51,3 +51,4 @@ ENV/
 
 save/*
 data/*
+wandb/*
