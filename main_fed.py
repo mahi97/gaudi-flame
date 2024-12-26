@@ -32,18 +32,20 @@ else:
 
 print(args.device)
 
-def device_name(gaudi, eager):
+def device_name(gaudi, eager, gpu):
     if gaudi:
         if eager:
             return 'HPU-Eager'
         return 'HPU-Lazy'
-    return 'GPU'
+    if gpu == -1:
+        return 'CPU'
+    return 'GPU_'+str(gpu)
 
 if __name__ == '__main__':
 
     wandb.init(project='gaudi-fl', config=args)
     config = wandb.config
-    wandb.run.name = '{} s{}-{} -- {}'.format(args.dataset, args.seed, device_name(args.gaudi, args.eager), wandb.run.id)
+    wandb.run.name = '{} s{}-{} -- {}'.format(args.dataset, args.seed, device_name(args.gaudi, args.eager, args.gpu), wandb.run.id)
 
     # load dataset and split users
     if args.dataset == 'mnist':
