@@ -11,6 +11,8 @@ import numpy as np
 from torchvision import datasets, transforms
 import torch
 import datetime
+import wandb
+
 
 from utils.sampling import mnist_iid, mnist_noniid, cifar_iid
 from utils.options import args
