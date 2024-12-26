@@ -25,11 +25,6 @@ class DatasetSplit(Dataset):
 
 
 class LocalUpdate(object):
-    # args: torch.jit.Attribute[Any]
-    # loss_func: torch.jit.Attribute[nn.Module]
-    # selected_clients: torch.jit.Attribute[List[int]]
-    # ldr_train: torch.jit.Attribute[DataLoader]
-
     def __init__(self, args, dataset=None, idxs=None):
         self.args = args
         self.loss_func = nn.CrossEntropyLoss()

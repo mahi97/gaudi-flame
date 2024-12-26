@@ -21,8 +21,8 @@ from models.Nets import MLP, CNNMnist, CNNCifar
 from models.Fed import FedAvg
 from models.test import test_img
 
-if args.eager:
-    os.environ['PT_HPU_LAZY_MODE'] = '0'
+# if args.eager:
+#     os.environ['PT_HPU_LAZY_MODE'] = '0'
 
 if args.gaudi:
     import habana_frameworks.torch.core as htcore
