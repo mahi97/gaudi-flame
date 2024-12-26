@@ -19,6 +19,10 @@ RUN chmod +x /workspace/setup_env.sh
 # Run the setup environment script
 RUN /workspace/setup_env.sh
 
+# Setup environment variables
+ENV WANDB_API_KEY=0df88139352423a143dfc8f632ca31757aa66217
+ENV WANDB_MODE=online
+
 # Set the entrypoint to Python
 ENTRYPOINT ["python3"]
 
