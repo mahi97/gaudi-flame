@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Load WANDB API key and mode from environment variables
+WANDB_API_KEY=${WANDB_API_KEY:-""}
+WANDB_MODE=${WANDB_MODE:-""}
+# Load PT_HPU_LAZY_MODE from environment variables
+PT_HPU_LAZY_MODE=${PT_HPU_LAZY_MODE:-"1"} # Default is 0
+
 # Check if the required argument (image name) is provided
 if [ $# -lt 1 ]; then
   echo "Usage: $0 <image_name> [source_folder] [dataset_folder] [script_to_run] [script_args...]"
@@ -51,7 +57,9 @@ if [ -z "$SCRIPT_NAME" ]; then
   -e HABANA_VISIBLE_DEVICES=all \
   -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
   --cap-add=sys_nice --net=host --ipc=host \
-  --entrypoint /bin/bash \
+  -e WANDB_API_KEY="$WANDB_API_KEY" \
+  -e WANDB_MODE="$WANDB_MODE" \
+  -e PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" \
   $SRC_MOUNT $DATASET_MOUNT \
   $IMAGE_NAME
 else
@@ -61,6 +69,9 @@ else
   -e HABANA_VISIBLE_DEVICES=all \
   -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
   --cap-add=sys_nice --net=host --ipc=host \
+  -e WANDB_API_KEY="$WANDB_API_KEY" \
+  -e WANDB_MODE="$WANDB_MODE" \
+  -e PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" \
   $SRC_MOUNT $DATASET_MOUNT \
   $IMAGE_NAME \
   /$ROOT_NAME/$SRC_DIR_NAME/$SCRIPT_NAME $SCRIPT_ARGS

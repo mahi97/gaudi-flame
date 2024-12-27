@@ -20,9 +20,19 @@ RUN chmod +x /workspace/setup_env.sh
 RUN /workspace/setup_env.sh
 RUN git config --global --add safe.directory /workspace
 
-# Setup environment variables
-ENV WANDB_API_KEY=0df88139352423a143dfc8f632ca31757aa66217
-ENV WANDB_MODE=online
+# Setup environment variables as arguments
+ARG WANDB_API_KEY
+ARG WANDB_MODE
+
+# Add PT_HPU_LAZY_MODE as an argument
+ARG PT_HPU_LAZY_MODE
+
+# Set PT_HPU_LAZY_MODE environment variable
+ENV PT_HPU_LAZY_MODE=${PT_HPU_LAZY_MODE:-"1"}
+
+# Set environment variables using the arguments
+ENV WANDB_API_KEY=$WANDB_API_KEY
+ENV WANDB_MODE=$WANDB_MODE
 
 # Set the entrypoint to Python
 ENTRYPOINT ["python3"]

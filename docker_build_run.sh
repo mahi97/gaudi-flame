@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Load WANDB API key and mode from environment variables
+WANDB_API_KEY=${WANDB_API_KEY:-""}
+WANDB_MODE=${WANDB_MODE:-""}
+
 # Check if sufficient arguments are provided
 if [ $# -lt 2 ]; then
   echo "Usage: $0 <image_name> <dockerfile_path> [source_folder] [dataset_folder] [script_to_run] [script_args...]"
@@ -24,9 +28,15 @@ if [ ! -f "$DOCKERFILE_PATH" ]; then
   exit 1
 fi
 
-# Build the Docker image
+# Build the Docker image with WANDB environment variables as arguments
 echo "Building Docker image '$IMAGE_NAME' using Dockerfile at '$DOCKERFILE_PATH'..."
-sudo docker build -t $IMAGE_NAME -f $DOCKERFILE_PATH .
+sudo docker build \
+  -t "$IMAGE_NAME" \
+  -f "$DOCKERFILE_PATH" \
+  --build-arg WANDB_API_KEY="$WANDB_API_KEY" \
+  --build-arg WANDB_MODE="$WANDB_MODE" \
+  --build-arg PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" .
+
 
 # Check if the build succeeded
 if [ $? -eq 0 ]; then
