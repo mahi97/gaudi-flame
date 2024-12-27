@@ -6,7 +6,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from utils.options import args
+from utils.config import args
 
 if args.gaudi:
     import habana_frameworks.torch.core as htcore

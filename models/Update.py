@@ -6,7 +6,7 @@ from typing import List, Any
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
-from utils.options import args
+from utils.config import args
 
 if args.gaudi:
     import habana_frameworks.torch.core as htcore
