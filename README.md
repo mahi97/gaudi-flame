@@ -10,9 +10,9 @@ The main baseline algorithm is Federated Averaging ([FedAvg](https://arxiv.org/a
 - [Subsampling](https://arxiv.org/pdf/1610.05492) (Federated Averaging with Subsampling)
 - [Quantization](https://arxiv.org/abs/1710.05492) (Federated Averaging with Quantization)
 - [EvoFed](https://arxiv.org/abs/2003.00295) (Evolutionary Federated Learning)
-- [MAPA](https://arxiv.org/abs/2003.00295) (Model-Agnostic Private Aggregation)
-- [FA-LoRA](https://arxiv.org/abs/2003.00295) (Federated Averaging with Low-Rank Compression)
-- [MA-LoRA](https://arxiv.org/abs/2003.00295) (Model-Agnostic Low-Rank Aggregation)
+- [MAPA](https://arxiv.org/abs/2003.00295) (Model-Agnostic Projection Adaptation)
+- [FA-LoRA](https://arxiv.org/abs/2003.00295) (Frozen-A Low-Rank Adaptation)
+- [MA-LoRA](https://arxiv.org/abs/2003.00295) (Model-Agnostic Low-Rank Adaptation)
 
 This suite is designed to be modular and extensible, allowing for easy integration of new algorithms and datasets or hybrid use of them together.
 
