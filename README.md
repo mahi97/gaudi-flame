@@ -4,15 +4,24 @@ Federated learning is a machine learning approach where many clients collaborati
 
 This repository implements communication-efficient federated learning algorithms in PyTorch, supporting Gaudi HPU.
 
-## Supported Algorithms
+## Supported Algorithms and Tasks
 The suite includes the following algorithms:
-- **[FedAvg](https://arxiv.org/abs/1602.05629)**: Baseline Federated Averaging.
-- **[Subsampling](https://arxiv.org/pdf/1610.05492)**: Federated Averaging with Subsampling.
-- **[Quantization](https://arxiv.org/abs/1710.05492)**: Federated Averaging with Quantization.
-- **[EvoFed](https://arxiv.org/abs/2003.00295)**: Evolutionary Federated Learning.
-- **[MAPA](https://arxiv.org/abs/2003.00295)**: Model-Agnostic Projection Adaptation.
-- **[FA-LoRA](https://arxiv.org/abs/2003.00295)**: Frozen-A Low-Rank Adaptation.
-- **[MA-LoRA](https://arxiv.org/abs/2003.00295)**: Model-Agnostic Low-Rank Adaptation.
+- [x] **[FedAvg](https://arxiv.org/abs/1602.05629)**: Baseline Federated Averaging.
+- [x] **[Subsampling](https://arxiv.org/pdf/1610.05492)**: Federated Averaging with Subsampling.
+- [x] **[Quantization](https://arxiv.org/abs/1710.05492)**: Federated Averaging with Quantization.
+- [ ] **[EvoFed](https://arxiv.org/abs/2003.00295)**: Evolutionary Federated Learning.
+- [ ] **[MAPA]()**: Model-Agnostic Projection Adaptation.
+- [ ] **[FA-LoRA](https://arxiv.org/abs/2403.13269)**: Frozen-A Low-Rank Adaptation.
+- [ ] **[MA-LoRA]()**: Model-Agnostic Low-Rank Adaptation.
+
+And Benchmarked on:
+- [x] **[MNIST](http://yann.lecun.com/exdb/mnist/)**: A dataset of handwritten digits (0-9) commonly used for image classification tasks.
+- [x] **[Fashion-MNIST (FMNIST)](https://github.com/zalandoresearch/fashion-mnist)**: A dataset of Zalando's article images used for image classification tasks.
+- [x] **[CIFAR-10/100](https://www.cs.toronto.edu/~kriz/cifar.html)**: Datasets containing 10 or 100 classes of 32x32 color images, widely used for image recognition tasks.
+- [ ] **[Shakespeare Dataset](https://leaf.cmu.edu/)**: A character-level dataset built from Shakespeare’s plays, used for next-character prediction tasks.
+- [ ] **[Sentiment140](https://www.kaggle.com/datasets/kazanova/sentiment140)**: A dataset for sentiment analysis containing 1.6 million tweets labeled as positive, negative, or neutral.
+- [ ] **[Reddit Dataset](https://leaf.cmu.edu/)**: A dataset of user comments from Reddit structured for federated learning tasks like next-word prediction or topic modeling.
+
 
 The suite is modular and extensible, allowing easy integration of new algorithms and datasets.
 
