@@ -102,31 +102,11 @@ PT_HPU_LAZY_MODE=0 ./docker_run.sh python train.py --gaudi --eager
 ```
 project/
 ├── Dockerfile           # Defines the container environment and dependencies.
-├── setup_env.sh         # Custom environment setup script for the container.
-├── requirements.txt     # Python dependencies for the project.
+├── setup_env.sh         # Custom environment setup script for the container. Executed in Dockerfile.
+├── requirements.txt     # Python dependencies for the project. Installed with Dockerfile.
 ├── docker_build_run.sh  # Builds and optionally runs a Docker container.
 ├── docker_run.sh        # Runs a pre-built Docker container with mounts and script execution.
 ```
-
-### File Roles
-
-1. **`Dockerfile`**
-   - Sets up the container environment.
-   - Installs dependencies and configures runtime settings.
-   - Defaults to running `your_script.py`.
-
-2. **`setup_env.sh`**
-   - Custom script for additional setup tasks.
-
-3. **`requirements.txt`**
-   - Lists Python dependencies.
-
-4. **`docker_build_run.sh`**
-   - Builds a Docker image and optionally runs a script inside it.
-
-5. **`docker_run.sh`**
-   - Runs a pre-built Docker image, optionally mounting source/dataset folders and executing a script.
-
 ---
 
 ## Usage
