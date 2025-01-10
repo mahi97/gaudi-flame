@@ -171,4 +171,5 @@ This repository draws inspiration from:
 - [AshwinRJ/Federated-Learning-PyTorch](https://github.com/AshwinRJ/Federated-Learning-PyTorch)
 - [lokinko/Federated-Learning](https://github.com/lokinko/Federated-Learning)
 - [research/federated](https://github.com/google-research/federated)
+- [rui-ye/OpenFedLLM](https://github.com/rui-ye/OpenFedLLM)
 - [innovation-cat/Awesome-Federated-Machine-Learning](https://github.com/innovation-cat/Awesome-Federated-Machine-Learning)
