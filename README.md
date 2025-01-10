@@ -1,4 +1,13 @@
-# Gaudi Suite for Communication-Efficient Federated Learning
+<div align="center">
+	<img src="Logo.jpg" width=400 height=400>
+	<br/>
+	<h1>Gaudi-FLAME</h1>
+	<br/>
+	<a href="https://www.python.org/"><img src="https://img.shields.io/badge/built%20with-Python3-green.svg" alt="built with Python3"></a>
+</div>
+
+
+# Gaudi Suite for Federated Learning with Message Efficiency (FLAME)
 
 Federated learning is a machine learning approach where many clients collaboratively train a model under the orchestration of a central server while keeping the training data decentralized. This helps address data privacy concerns and enables lower-latency inference. However, the communication cost can be prohibitively high, especially for clients with slow or expensive communication links.
 
