@@ -32,8 +32,7 @@ And Benchmarked on:
 - [ ] **[Reddit Dataset](https://leaf.cmu.edu/)**: A dataset of user comments from Reddit structured for federated learning tasks like next-word prediction or topic modeling.
 
 
-The suite is modular and extensible, allowing easy integration of new algorithms and datasets.
-
+The full roadmap is available in the [project board](ROADMAP.md).
 ---
 
 ## Environment Setup
