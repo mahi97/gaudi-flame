@@ -11,6 +11,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import wandb
+from tqdm import tqdm
 
 from torchvision import datasets, transforms
 
@@ -23,6 +24,8 @@ from models.Nets import MLP, CNNMnist, CNNCifar
 from models.Fed import FedAvg
 from models.test import test_img
 
+from utils.reshaper import flat_to_network, network_to_flat
+from utils.compression import quantize, topk_sparsify
 # if args.eager:
 #     os.environ['PT_HPU_LAZY_MODE'] = '0'
 
@@ -132,7 +135,7 @@ if __name__ == '__main__':
         print("Aggregation over all clients")
         w_locals = [w_glob for _ in range(args.num_users)]
 
-    for epoch in range(args.epochs):
+    for epoch in tqdm(range(args.epochs)):
         loss_locals = []
 
         if not args.all_clients:
@@ -152,6 +155,17 @@ if __name__ == '__main__':
 
             loss_locals.append(copy.deepcopy(loss))
 
+        # compress the model
+        w_flat = [network_to_flat(w) for w in w_locals]
+        g_flat, meta = network_to_flat(w_glob, return_meta=True)
+        grad_flat = [w - g_flat for w in w_flat]
+        if args.s_rate < 1:
+            grad_flat = [topk_sparsify(grad, args.s_rate) for grad in grad_flat]
+        if args.q_level < 32:
+            grad_flat = [quantize(grad, args.q_level) for grad in grad_flat]
+        w_flat = [g_flat + grad for grad in grad_flat]
+
+        w_locals = [flat_to_network(w, meta) for w in w_flat]
         # FedAvg
         w_glob = FedAvg(w_locals)
         net_glob.load_state_dict(w_glob)
@@ -161,7 +175,7 @@ if __name__ == '__main__':
         acc_train, _ = test_img(net_glob, dataset_train, args)
         acc_test, loss_test = test_img(net_glob, dataset_test, args)
 
-        print(f'Epoch {epoch:3d}, Average loss {loss_avg:.3f}')
+        # print(f'Epoch {epoch:3d}, Average loss {loss_avg:.3f}')
         loss_train.append(loss_avg)
 
         wandb.log({
