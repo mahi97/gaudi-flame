@@ -8,6 +8,7 @@ import copy
 import numpy as np
 import torch
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import wandb
@@ -15,44 +16,92 @@ from tqdm import tqdm
 
 from torchvision import datasets, transforms
 
-# Import your sampling helpers, now extended with FMNIST and CIFAR non-IID
+# Import your sampling helpers
 from utils.sampling import mnist_iid, mnist_noniid, cifar_iid, cifar_noniid, fmnist_iid, fmnist_noniid
-
 from utils.config import args
 from models.Update import LocalUpdate
 from models.Nets import MLP, CNNMnist, CNNCifar
 from models.Fed import FedAvg
 from models.test import test_img
-
 from utils.reshaper import flat_to_network, network_to_flat
 from utils.compression import quantize, topk_sparsify
-# if args.eager:
-#     os.environ['PT_HPU_LAZY_MODE'] = '0'
 
+# ------------------------------------------------------------------------
+# 1. Adjust device based on Gaudi vs. GPU
+# ------------------------------------------------------------------------
 if args.gaudi:
+    # Make sure SynapseAI / habana-torch is installed
     import habana_frameworks.torch.core as htcore
+
     args.device = torch.device("hpu")
 else:
     args.device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu != -1 else "cpu")
 
 print(args.device)
 
+
+# ------------------------------------------------------------------------
+# (Optional) A small helper to name your run properly
+# ------------------------------------------------------------------------
 def device_name(gaudi, eager, gpu):
     if gaudi:
-        if eager:
-            return 'HPU-Eager'
-        return 'HPU-Lazy'
+        return 'HPU-Eager' if eager else 'HPU-Lazy'
     if gpu == -1:
         return 'CPU'
-    return 'GPU_' + str(gpu)
+    return f'GPU_{gpu}'
 
+
+# ------------------------------------------------------------------------
+# (Optional) Set up profiling
+# ------------------------------------------------------------------------
+prof = None  # torch profiler object
+hpu_profiler_started = False  # track if Habana profiler started
+
+if getattr(args, 'profile', True):
+    if args.gaudi:
+        # HPU Profiler
+        # Make sure you have installed habana_frameworks.torch.hpu
+        # and set HABANA_PROFILE=1 if you want hardware-level traces
+        from habana_frameworks.torch.hpu.profiler import start_profiler, stop_profiler
+
+        start_profiler(
+            output_dir="./habana_profile",  # Directory to store trace
+            profile_type="hl"  # 'hl' = high-level, or 'hw' = hardware-level
+        )
+        hpu_profiler_started = True
+        print("Habana profiler started.")
+    else:
+        # Torch Profiler for CPU/GPU
+        import torch.profiler
+
+        # Set up an on-trace callback to save events for TensorBoard
+        # Adjust schedule to your preference
+        prof = torch.profiler.profile(
+            activities=[
+                torch.profiler.ProfilerActivity.CPU,
+                torch.profiler.ProfilerActivity.CUDA
+            ] if args.device.type == 'cuda' else [torch.profiler.ProfilerActivity.CPU],
+            schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),
+            on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/profiler'),
+            record_shapes=True,
+            with_stack=True,
+            profile_memory=True
+        )
+        prof.start()
+        print("Torch profiler started.")
+
+# ------------------------------------------------------------------------
+# Main training script
+# ------------------------------------------------------------------------
 if __name__ == '__main__':
-
     wandb.init(project='gaudi-fl', config=args)
     config = wandb.config
-    wandb.run.name = '{} s{}-{} -- {}'.format(args.dataset, args.seed,
-                                             device_name(args.gaudi, args.eager, args.gpu),
-                                             wandb.run.id)
+    wandb.run.name = '{} s{}-{} -- {}'.format(
+        args.dataset,
+        args.seed,
+        device_name(args.gaudi, args.eager, args.gpu),
+        wandb.run.id
+    )
 
     # ------------------------------------------------------------------------
     # Load dataset and split among users
@@ -65,10 +114,8 @@ if __name__ == '__main__':
         dataset_train = datasets.MNIST('./data/mnist/', train=True, download=True, transform=trans_mnist)
         dataset_test = datasets.MNIST('./data/mnist/', train=False, download=True, transform=trans_mnist)
 
-        if args.iid:
-            dict_users = mnist_iid(dataset_train, args.num_users)
-        else:
-            dict_users = mnist_noniid(dataset_train, args.num_users)
+        dict_users = mnist_iid(dataset_train, args.num_users) if args.iid \
+            else mnist_noniid(dataset_train, args.num_users)
 
     elif args.dataset == 'fmnist':
         trans_fmnist = transforms.Compose([
@@ -78,10 +125,8 @@ if __name__ == '__main__':
         dataset_train = datasets.FashionMNIST('./data/fmnist/', train=True, download=True, transform=trans_fmnist)
         dataset_test = datasets.FashionMNIST('./data/fmnist/', train=False, download=True, transform=trans_fmnist)
 
-        if args.iid:
-            dict_users = fmnist_iid(dataset_train, args.num_users)
-        else:
-            dict_users = fmnist_noniid(dataset_train, args.num_users)
+        dict_users = fmnist_iid(dataset_train, args.num_users) if args.iid \
+            else fmnist_noniid(dataset_train, args.num_users)
 
     elif args.dataset == 'cifar':
         trans_cifar = transforms.Compose([
@@ -92,11 +137,8 @@ if __name__ == '__main__':
         dataset_train = datasets.CIFAR10('./data/cifar', train=True, download=True, transform=trans_cifar)
         dataset_test = datasets.CIFAR10('./data/cifar', train=False, download=True, transform=trans_cifar)
 
-        if args.iid:
-            dict_users = cifar_iid(dataset_train, args.num_users)
-        else:
-            # Use the new CIFAR non-IID sampler
-            dict_users = cifar_noniid(dataset_train, args.num_users)
+        dict_users = cifar_iid(dataset_train, args.num_users) if args.iid \
+            else cifar_noniid(dataset_train, args.num_users)
     else:
         exit('Error: unrecognized dataset')
 
@@ -108,7 +150,6 @@ if __name__ == '__main__':
     if args.model == 'cnn' and args.dataset == 'cifar':
         net_glob = CNNCifar(args=args).to(args.device)
     elif args.model == 'cnn' and (args.dataset == 'mnist' or args.dataset == 'fmnist'):
-        # Use the same CNNMnist class for FMNIST or roll your own if you want
         net_glob = CNNMnist(args=args).to(args.device)
     elif args.model == 'mlp':
         len_in = 1
@@ -120,6 +161,8 @@ if __name__ == '__main__':
 
     print(net_glob)
     net_glob.train()
+
+    # (Optional) Eager mode for Gaudi
     if args.gaudi and args.eager:
         net_glob = torch.compile(net_glob, backend="hpu_backend")
 
@@ -155,17 +198,24 @@ if __name__ == '__main__':
 
             loss_locals.append(copy.deepcopy(loss))
 
-        # compress the model
+        # --------------------------------------------------------------------
+        # Compress & Average
+        # --------------------------------------------------------------------
         w_flat = [network_to_flat(w) for w in w_locals]
         g_flat, meta = network_to_flat(w_glob, return_meta=True)
         grad_flat = [w - g_flat for w in w_flat]
+
+        # Sparsify
         if args.s_rate < 1:
             grad_flat = [topk_sparsify(grad, args.s_rate) for grad in grad_flat]
+
+        # Quantize
         if args.q_level < 32:
             grad_flat = [quantize(grad, args.q_level) for grad in grad_flat]
-        w_flat = [g_flat + grad for grad in grad_flat]
 
+        w_flat = [g_flat + grad for grad in grad_flat]
         w_locals = [flat_to_network(w, meta) for w in w_flat]
+
         # FedAvg
         w_glob = FedAvg(w_locals)
         net_glob.load_state_dict(w_glob)
@@ -174,8 +224,6 @@ if __name__ == '__main__':
         loss_avg = sum(loss_locals) / len(loss_locals)
         acc_train, _ = test_img(net_glob, dataset_train, args)
         acc_test, loss_test = test_img(net_glob, dataset_test, args)
-
-        # print(f'Epoch {epoch:3d}, Average loss {loss_avg:.3f}')
         loss_train.append(loss_avg)
 
         wandb.log({
@@ -185,6 +233,25 @@ if __name__ == '__main__':
             'test_acc': acc_test,
             'test_loss': loss_test
         })
+
+        # --------------------------------------------------------------------
+        # If profiling with Torch Profiler on GPU/CPU, step each epoch
+        # --------------------------------------------------------------------
+        if prof is not None:
+            prof.step()
+
+    # ------------------------------------------------------------------------
+    # Stop Profilers
+    # ------------------------------------------------------------------------
+    if prof is not None:
+        prof.stop()
+        print("Torch profiler stopped.")
+
+    if hpu_profiler_started:
+        from habana_frameworks.torch.hpu.profiler import stop_profiler
+
+        stop_profiler()
+        print("Habana profiler stopped.")
 
     # ------------------------------------------------------------------------
     # Plot loss curve
@@ -199,8 +266,8 @@ if __name__ == '__main__':
 
     # Final testing
     net_glob.eval()
-    acc_train, loss_train = test_img(net_glob, dataset_train, args)
-    acc_test, loss_test = test_img(net_glob, dataset_test, args)
+    acc_train, loss_train_ = test_img(net_glob, dataset_train, args)
+    acc_test, loss_test_ = test_img(net_glob, dataset_test, args)
     print(f"Final Training accuracy: {acc_train:.2f}")
     print(f"Final Testing accuracy:  {acc_test:.2f}")
 
