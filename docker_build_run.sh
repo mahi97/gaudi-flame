@@ -22,13 +22,13 @@ SCRIPT_NAME="${5:-}"
 # Collect additional arguments for the script
 SCRIPT_ARGS="${@:6}"
 
-# Check if the Dockerfile exists at the specified path
+# Check if the Dockerfile exists
 if [ ! -f "$DOCKERFILE_PATH" ]; then
   echo "Error: Dockerfile not found at $DOCKERFILE_PATH"
   exit 1
 fi
 
-# Build the Docker image with WANDB environment variables as arguments
+# Build the Docker image
 echo "Building Docker image '$IMAGE_NAME' using Dockerfile at '$DOCKERFILE_PATH'..."
 sudo docker build \
   -t "$IMAGE_NAME" \
@@ -45,13 +45,13 @@ else
   exit 1
 fi
 
-# If no script is provided, just inform the user. Container can be manually run with docker_run.sh
+# If no script is provided, just inform the user and exit
 if [ -z "$SCRIPT_NAME" ]; then
-  echo "Docker image built successfully, but no script provided to run."
-  echo "Run the container manually with ./docker_run.sh $IMAGE_NAME [options]"
+  echo "Docker image built successfully, but no script provided."
+  echo "You can run the container manually with: ./docker_run.sh $IMAGE_NAME"
   exit 0
 fi
 
 # Otherwise, run the container with the newly built image
-echo "Running the Docker container with the image '$IMAGE_NAME' and script '$SCRIPT_NAME' with arguments '$SCRIPT_ARGS'..."
+echo "Running Docker container with image '$IMAGE_NAME' and script '$SCRIPT_NAME'..."
 ./docker_run.sh "$IMAGE_NAME" "$SRC_FOLDER" "$DATASET_FOLDER" "$SCRIPT_NAME" $SCRIPT_ARGS

@@ -10,7 +10,7 @@ COPY setup_env.sh /workspace/setup_env.sh
 # Copy the requirements.txt to the container
 COPY requirements.txt /workspace/requirements.txt
 
-# Install Python dependencies from requirements.txt
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Ensure the setup script is executable
@@ -18,6 +18,8 @@ RUN chmod +x /workspace/setup_env.sh
 
 # Run the setup environment script
 RUN /workspace/setup_env.sh
+
+# Let Git trust the workspace folder (avoid warnings)
 RUN git config --global --add safe.directory /workspace
 
 # Setup environment variables as arguments
@@ -25,15 +27,17 @@ ARG WANDB_API_KEY
 ARG WANDB_MODE
 ARG PT_HPU_LAZY_MODE
 
-# Set PT_HPU_LAZY_MODE environment variable
+# Defaults
 ENV PT_HPU_LAZY_MODE=${PT_HPU_LAZY_MODE:-"1"}
-
-# Set environment variables using the arguments
 ENV WANDB_API_KEY=$WANDB_API_KEY
 ENV WANDB_MODE=$WANDB_MODE
 
-# Keep Python as the entrypoint
-ENTRYPOINT ["python3"]
+# (Optional) If you don't want to conflict with cProfile usage,
+# you can omit ENTRYPOINT lines so we can run Python directly in the run script.
 
-# Default command is your script. (We'll override at runtime if no script is provided.)
-CMD ["your_script.py"]
+# Uncomment if you prefer a default entrypoint:
+# ENTRYPOINT ["python3"]
+# CMD ["your_script.py"]
+
+# If you choose to keep an ENTRYPOINT, remember to override it in docker_run.sh
+# (using --entrypoint) when needed (e.g., cProfile).
