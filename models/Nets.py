@@ -42,7 +42,6 @@ class CNNMnist(nn.Module):
         x = self.fc2(x)
         return x
 
-
 class CNNCifar(nn.Module):
     def __init__(self, args):
         super(CNNCifar, self).__init__()
