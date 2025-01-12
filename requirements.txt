@@ -3,3 +3,4 @@ tqdm
 scikit-learn 
 scipy 
 wandb
+tensorboard
