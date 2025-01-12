@@ -37,7 +37,6 @@ sudo docker build \
   --build-arg WANDB_MODE="$WANDB_MODE" \
   --build-arg PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" .
 
-
 # Check if the build succeeded
 if [ $? -eq 0 ]; then
   echo "Docker image '$IMAGE_NAME' built successfully."
@@ -46,13 +45,13 @@ else
   exit 1
 fi
 
-# If no script is provided, print a message and exit
+# If no script is provided, just inform the user. Container can be manually run with docker_run.sh
 if [ -z "$SCRIPT_NAME" ]; then
-  echo "Docker image built successfully, but no script provided to run inside the container."
-  echo "You can run the container manually with ./run_docker.sh"
+  echo "Docker image built successfully, but no script provided to run."
+  echo "Run the container manually with ./docker_run.sh $IMAGE_NAME [options]"
   exit 0
 fi
 
-# Run the Docker container using the newly built image
+# Otherwise, run the container with the newly built image
 echo "Running the Docker container with the image '$IMAGE_NAME' and script '$SCRIPT_NAME' with arguments '$SCRIPT_ARGS'..."
 ./docker_run.sh "$IMAGE_NAME" "$SRC_FOLDER" "$DATASET_FOLDER" "$SCRIPT_NAME" $SCRIPT_ARGS

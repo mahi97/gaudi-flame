@@ -23,8 +23,6 @@ RUN git config --global --add safe.directory /workspace
 # Setup environment variables as arguments
 ARG WANDB_API_KEY
 ARG WANDB_MODE
-
-# Add PT_HPU_LAZY_MODE as an argument
 ARG PT_HPU_LAZY_MODE
 
 # Set PT_HPU_LAZY_MODE environment variable
@@ -34,8 +32,8 @@ ENV PT_HPU_LAZY_MODE=${PT_HPU_LAZY_MODE:-"1"}
 ENV WANDB_API_KEY=$WANDB_API_KEY
 ENV WANDB_MODE=$WANDB_MODE
 
-# Set the entrypoint to Python
+# Keep Python as the entrypoint
 ENTRYPOINT ["python3"]
 
-# Default command is to run the user-specified script (can be overridden)
+# Default command is your script. (We'll override at runtime if no script is provided.)
 CMD ["your_script.py"]

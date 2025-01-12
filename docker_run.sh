@@ -3,8 +3,12 @@
 # Load WANDB API key and mode from environment variables
 WANDB_API_KEY=${WANDB_API_KEY:-""}
 WANDB_MODE=${WANDB_MODE:-""}
-# Load PT_HPU_LAZY_MODE from environment variables
-PT_HPU_LAZY_MODE=${PT_HPU_LAZY_MODE:-"1"} # Default is 0
+
+# Load PT_HPU_LAZY_MODE from environment variables (default to 1)
+PT_HPU_LAZY_MODE=${PT_HPU_LAZY_MODE:-"1"}
+
+# The user can set USE_CPROFILE=1 to run the script with cProfile
+USE_CPROFILE=${USE_CPROFILE:-"0"}
 
 # Check if the required argument (image name) is provided
 if [ $# -lt 1 ]; then
@@ -45,34 +49,49 @@ else
   DATASET_MOUNT=""
 fi
 
-# Check if the image name is "base" and run vault.habana.ai/gaudi-docker/1.17.0/ubuntu22.04/habanalabs/pytorch-installer-2.3.1:latest
+# If user typed "base" instead of an actual built image
 if [ "$IMAGE_NAME" == "base" ]; then
   IMAGE_NAME="vault.habana.ai/gaudi-docker/1.17.0/ubuntu22.04/habanalabs/pytorch-installer-2.3.1:latest"
 fi
 
-# Check if a script is provided, if not, run bash interactively
+# If no script is provided, run an interactive bash session
 if [ -z "$SCRIPT_NAME" ]; then
   echo "No script provided. Starting the Docker container in interactive bash mode..."
   sudo docker run -it --runtime=habana \
-  -e HABANA_VISIBLE_DEVICES=all \
-  -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
-  --cap-add=sys_nice --net=host --ipc=host \
-  -e WANDB_API_KEY="$WANDB_API_KEY" \
-  -e WANDB_MODE="$WANDB_MODE" \
-  -e PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" \
-  $SRC_MOUNT $DATASET_MOUNT \
-  $IMAGE_NAME
+    -e HABANA_VISIBLE_DEVICES=all \
+    -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
+    --cap-add=sys_nice --net=host --ipc=host \
+    -e WANDB_API_KEY="$WANDB_API_KEY" \
+    -e WANDB_MODE="$WANDB_MODE" \
+    -e PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" \
+    --entrypoint /bin/bash \
+    $SRC_MOUNT $DATASET_MOUNT \
+    "$IMAGE_NAME"
 else
-  # Run the Docker container with the specified script and additional arguments
-  echo "Running the Docker container with script '$SCRIPT_NAME' and arguments '$SCRIPT_ARGS'..."
-  sudo docker run -it --runtime=habana \
-  -e HABANA_VISIBLE_DEVICES=all \
-  -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
-  --cap-add=sys_nice --net=host --ipc=host \
-  -e WANDB_API_KEY="$WANDB_API_KEY" \
-  -e WANDB_MODE="$WANDB_MODE" \
-  -e PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" \
-  $SRC_MOUNT $DATASET_MOUNT \
-  $IMAGE_NAME \
-  /$ROOT_NAME/$SRC_DIR_NAME/$SCRIPT_NAME $SCRIPT_ARGS
+  # Run script either with or without cProfile
+  if [ "$USE_CPROFILE" = "1" ]; then
+    echo "Running the Docker container with cProfile on script '$SCRIPT_NAME'..."
+    sudo docker run -it --runtime=habana \
+      -e HABANA_VISIBLE_DEVICES=all \
+      -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
+      --cap-add=sys_nice --net=host --ipc=host \
+      -e WANDB_API_KEY="$WANDB_API_KEY" \
+      -e WANDB_MODE="$WANDB_MODE" \
+      -e PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" \
+      $SRC_MOUNT $DATASET_MOUNT \
+      "$IMAGE_NAME" \
+      python3 -m cProfile -o /workspace/profile.prof "/$ROOT_NAME/$SRC_DIR_NAME/$SCRIPT_NAME" $SCRIPT_ARGS
+  else
+    echo "Running the Docker container with script '$SCRIPT_NAME' and arguments '$SCRIPT_ARGS'..."
+    sudo docker run -it --runtime=habana \
+      -e HABANA_VISIBLE_DEVICES=all \
+      -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
+      --cap-add=sys_nice --net=host --ipc=host \
+      -e WANDB_API_KEY="$WANDB_API_KEY" \
+      -e WANDB_MODE="$WANDB_MODE" \
+      -e PT_HPU_LAZY_MODE="$PT_HPU_LAZY_MODE" \
+      $SRC_MOUNT $DATASET_MOUNT \
+      "$IMAGE_NAME" \
+      "/$ROOT_NAME/$SRC_DIR_NAME/$SCRIPT_NAME" $SCRIPT_ARGS
+  fi
 fi
