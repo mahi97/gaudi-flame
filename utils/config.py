@@ -9,7 +9,7 @@ def args_parser():
     # federated arguments
     parser.add_argument('--epochs', type=int, default=500, help="rounds of training")
     parser.add_argument('--num_users', type=int, default=100, help="number of users: K")
-    parser.add_argument('--frac', type=float, default=1.0, help="the fraction of clients: C")
+    parser.add_argument('--frac', type=float, default=0.2, help="the fraction of clients: C")
     parser.add_argument('--local_ep', type=int, default=1, help="the number of local epochs: E")
     parser.add_argument('--local_bs', type=int, default=512, help="local batch size: B")
     parser.add_argument('--bs', type=int, default=128, help="test batch size")
@@ -28,7 +28,7 @@ def args_parser():
                         help="Whether use max pooling rather than strided convolutions")
 
     # other arguments
-    parser.add_argument('--dataset', type=str, default='cifar', help="name of dataset")
+    parser.add_argument('--dataset', type=str, default='mnist', help="name of dataset")
     parser.add_argument('--iid', action='store_true', help='whether i.i.d or not')
     parser.add_argument('--num_classes', type=int, default=10, help="number of classes")
     parser.add_argument('--num_channels', type=int, default=3, help="number of channels of imges")
@@ -39,6 +39,11 @@ def args_parser():
     parser.add_argument('--all_clients', action='store_true', help='aggregation over all clients')
     parser.add_argument('--gaudi', action='store_true', help='use gaudi instead of cuda')
     parser.add_argument('--eager', action='store_true', help='use eager mode for gaudi')
+
+    # Compression
+    parser.add_argument('--s_rate', type=float, default=1, help='sparsity rate')
+    parser.add_argument('--q_level', type=int, default=32, help='quantization level')
+
     _args = parser.parse_args()
     return _args
 
