@@ -67,9 +67,10 @@ if getattr(args, 'profile', True):
     prof = torch.profiler.profile(
         schedule=torch.profiler.schedule(
             wait=0,        # steps to wait before collecting
-            warmup=20,     # warmup steps
-            active=5,      # active steps (collected)
-            repeat=1
+            warmup=0,     # warmup steps
+            active=10,      # active steps (collected)
+            repeat=1,
+            skip_first=1
         ),
         activities=activities,
         on_trace_ready=torch.profiler.tensorboard_trace_handler('./profile_logs'),
@@ -78,7 +79,7 @@ if getattr(args, 'profile', True):
         profile_memory=True
     )
     prof.start()
-    print("Torch profiler started with schedule: wait=0, warmup=20, active=5.")
+    print("Torch profiler started with schedule: wait=0, warmup=0, active=10.")
 
 # ------------------------------------------------------------------------
 # Main Training
