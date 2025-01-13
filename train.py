@@ -59,6 +59,7 @@ if getattr(args, 'profile', True):
     activities = [] #[torch.profiler.ProfilerActivity.CPU]
     # If running on Gaudi, add HPU activity:
     if args.gaudi:
+        device = torch.device('hpu')
         activities.append(torch.profiler.ProfilerActivity.HPU)
     # Else if CUDA is available:
     elif args.device.type == 'cuda':
