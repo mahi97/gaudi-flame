@@ -56,7 +56,7 @@ prof = None
 if getattr(args, 'profile', True):
     import torch.profiler
 
-    activities = [torch.profiler.ProfilerActivity.CPU]
+    activities = [] #[torch.profiler.ProfilerActivity.CPU]
     # If running on Gaudi, add HPU activity:
     if args.gaudi:
         activities.append(torch.profiler.ProfilerActivity.HPU)
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         dataset_train = datasets.MNIST('./data/mnist/', train=True, download=True, transform=trans_mnist)
         dataset_test = datasets.MNIST('./data/mnist/', train=False, download=True, transform=trans_mnist)
 
-        dict_users = mnist_iid(dataset_train, args.num_users) if args.iid \
+        dict_users = mnist_iid(dataset_train, args.num_users) if not args.niid \
             else mnist_noniid(dataset_train, args.num_users)
 
     elif args.dataset == 'fmnist':
@@ -115,7 +115,7 @@ if __name__ == '__main__':
         dataset_train = datasets.FashionMNIST('./data/fmnist/', train=True, download=True, transform=trans_fmnist)
         dataset_test = datasets.FashionMNIST('./data/fmnist/', train=False, download=True, transform=trans_fmnist)
 
-        dict_users = fmnist_iid(dataset_train, args.num_users) if args.iid \
+        dict_users = fmnist_iid(dataset_train, args.num_users) if not args.niid \
             else fmnist_noniid(dataset_train, args.num_users)
 
     elif args.dataset == 'cifar':
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         dataset_train = datasets.CIFAR10('./data/cifar', train=True, download=True, transform=trans_cifar)
         dataset_test = datasets.CIFAR10('./data/cifar', train=False, download=True, transform=trans_cifar)
 
-        dict_users = cifar_iid(dataset_train, args.num_users) if args.iid \
+        dict_users = cifar_iid(dataset_train, args.num_users) if not args.niid \
             else cifar_noniid(dataset_train, args.num_users)
     else:
         exit('Error: unrecognized dataset')
@@ -247,7 +247,7 @@ if __name__ == '__main__':
     plt.xlabel('epoch')
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    plt.savefig(f'./save/{timestamp}_fed_{args.dataset}_{args.model}_{args.epochs}_C{args.frac}_iid{args.iid}.png')
+    plt.savefig(f'./save/{timestamp}_fed_{args.dataset}_{args.model}_{args.epochs}_C{args.frac}_iid{args.niid}.png')
 
     # Final testing
     net_glob.eval()
