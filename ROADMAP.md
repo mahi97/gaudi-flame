@@ -64,8 +64,6 @@ This document outlines the roadmap for the project.
 - [ ] **[FA-LoRA](https://arxiv.org/abs/2403.13269)**: Frozen-A Low-Rank Adaptation.
 - [ ] **[MAPA (under review)]()**: Model-Agnostic Projection Adaptation.
 
-And Benchmarked on:
-
 ## 2025 3Q
 
 ### General:
