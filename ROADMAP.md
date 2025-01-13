@@ -20,6 +20,9 @@ This document outlines the roadmap for the project.
 ## 2024 4Q
 
 ### General:
+- [x] **cProfile**: Profiling the code to identify bottlenecks.
+- [x] **PyTorch Profiler**: Profiling the code to identify bottlenecks.
+
 ### Federated Learning Algorithms:
 - [x] **[FedAvg](https://arxiv.org/abs/1602.05629)**: Baseline Federated Averaging.
 
@@ -36,6 +39,8 @@ This document outlines the roadmap for the project.
 
 ## 2025 1Q
 
+### General:
+- [ ] **Intel Gaudi Profiler**: Profiling the code to identify bottlenecks.
 
 ### Dataset Benchmarks:
 - [ ] **[Shakespeare Dataset](https://leaf.cmu.edu/)**: A character-level dataset built from Shakespeare’s plays, used for next-character prediction tasks.
@@ -64,6 +69,8 @@ And Benchmarked on:
 ## 2025 3Q
 
 ### General:
+- [ ] **Testing**: Implementing unit tests and integration tests for the project.
+
 ### Federated Learning Algorithms:
 
 - [ ] **[FedAdagrad](https://arxiv.org/abs/2003.00295)**: Adaptive Gradient-based FL optimization.
@@ -83,6 +90,8 @@ And Benchmarked on:
 
 ## 2025 4Q
 ### General:
+- [ ] **CI/CD Pipeline**: Implementing a CI/CD pipeline for the project.
+
 ### Federated Learning Algorithms:
 ### Dataset Benchmarks:
 
@@ -94,3 +103,7 @@ And Benchmarked on:
 
 ### Compression Techniques:
 
+## 2026
+
+We will continue to update the roadmap as we progress through the project.
+The main objective for 2026 will be maintaining the project, adding new algorithms, datasets, and compression techniques, and improving the existing ones, based on recent publications and community feedback.
