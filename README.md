@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="Logo.jpg" width=250 height=250>
+	<img src="nlogo.jpg" width=250 height=250>
 	<br/>
 	<h1>Gaudi-FLAME</h1>
 	<br/>
