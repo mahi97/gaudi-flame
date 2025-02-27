@@ -7,7 +7,7 @@ import argparse
 def args_parser():
     parser = argparse.ArgumentParser()
     # federated arguments
-    parser.add_argument('--epochs', type=int, default=10, help="rounds of training")
+    parser.add_argument('--epochs', type=int, default=200, help="rounds of training")
     parser.add_argument('--num_users', type=int, default=100, help="number of users: K")
     parser.add_argument('--frac', type=float, default=0.2, help="the fraction of clients: C")
     parser.add_argument('--local_ep', type=int, default=1, help="the number of local epochs: E")
@@ -32,7 +32,7 @@ def args_parser():
     parser.add_argument('--niid', action='store_true', help='whether i.i.d or not')
     parser.add_argument('--num_classes', type=int, default=10, help="number of classes")
     parser.add_argument('--num_channels', type=int, default=3, help="number of channels of imges")
-    parser.add_argument('--gpu', type=int, default=1, help="GPU ID, -1 for CPU")
+    parser.add_argument('--gpu', type=int, default=-1, help="GPU ID, -1 for CPU")
     parser.add_argument('--stopping_rounds', type=int, default=10, help='rounds of early stopping')
     parser.add_argument('--verbose', action='store_true', help='verbose print')
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
